@@ -8,6 +8,7 @@ async function run() {
     enforceAnyLabels(labels);
     enforceAllLabels(labels);
     enforceBannedLabels(labels);
+    enforceSingleRequiredLabel(labels);
 
   } catch (error) {
     core.setFailed(error.message);
@@ -37,6 +38,14 @@ function enforceBannedLabels(labels) {
       const bannedLabelsDescription = getInputString('BANNED_LABELS_DESCRIPTION', `${bannedLabel.name} label is banned`);
       core.setFailed(bannedLabelsDescription);
     }
+}
+
+function enforceSingleRequiredLabel(labels) {
+  const requiredLabel: string[] = getInputArray('REQUIRED_SINGLE_LABEL');
+  if (requiredLabel.length > 0 && labels.filter(label => requiredLabel.includes(label.name)).length !== 1) {
+    const requiredLabelDescription = getInputString('REQUIRED_SINGLE_LABEL_DESCRIPTION', `Exactly one label from ${requiredLabel.join(', ')} is required for this PR`);
+    core.setFailed(requiredLabelDescription);
+  }
 }
 
 function getInputArray(name): string[] {
